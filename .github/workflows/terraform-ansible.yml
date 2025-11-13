@@ -75,5 +75,5 @@ jobs:
       # 🚀 Run Ansible playbook
       - name: Run Ansible Playbook
         run: |
-          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
+          sudo ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
             --private-key terra-key-ec2.pem -u ubuntu -vvv
