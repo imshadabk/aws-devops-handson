@@ -12,7 +12,7 @@ resource aws_default_vpc default {
 }
 
 resource aws_security_group my_security_group {
-    name = "automate-sg"
+    name = "automate"
     description = "this will add a TF generated security group"
     vpc_id = aws_default_vpc.default.id
 
@@ -45,7 +45,7 @@ resource aws_security_group my_security_group {
     }
 
     tags = {
-        name = "automate-sg"
+        name = "automate"
     }
 }
 
@@ -66,3 +66,4 @@ resource "aws_instance" "my_instance" {
     }
 
 }
+
