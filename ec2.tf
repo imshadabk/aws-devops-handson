@@ -2,7 +2,7 @@
 
 resource aws_key_pair my_key {
     key_name = "terra-key-ec2.pem"
-    public_key = file("terra-key-ec2.pub")
+    public_key = file("${path.module}/terra-key-ec2.pub")
 }
 
 # VPC & Security Group
@@ -58,10 +58,11 @@ resource "aws_instance" "my_instance" {
     ami = "ami-02b8269d5e85954ef"
 
     root_block_device  {
-        volume_size = 15
+        volume_size = 8
         volume_type = "gp3"
     }
     tags = {
         Name = "devops-shadab"
     }
+
 }
