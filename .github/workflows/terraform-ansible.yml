@@ -48,8 +48,8 @@ jobs:
       # 🗝️ Use your actual private key name (terra-key-ec2)
       - name: Setup SSH key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > terra-key-ec2
-          chmod 400 terra-key-ec2
+          echo "${{ secrets.EC2_SSH_KEY }}" > terra-key-ec2.pem
+          chmod 400 terra-key-ec2.pem
 
       # 🧩 Add EC2 IP to Ansible inventory
       - name: Create Ansible inventory
@@ -76,4 +76,4 @@ jobs:
       - name: Run Ansible Playbook
         run: |
           ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
-            --private-key terra-key-ec2 -u ubuntu -vvv
+            --private-key terra-key-ec2.pem -u ubuntu -vvv
