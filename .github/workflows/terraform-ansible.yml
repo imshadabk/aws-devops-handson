@@ -32,9 +32,6 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Terraform Plan
-        run: terraform plan
-
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
@@ -45,25 +42,25 @@ jobs:
           echo "EC2_IP=$IP" >> $GITHUB_ENV
         shell: bash
 
-      # 🗝️ Use your actual private key name (terra-key-ec2)
-      - name: Setup SSH key
+      # 🔑 Use PRIVATE KEY from repo (NO .pem extension)
+      - name: Prepare SSH Key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > terra-key-ec2.pem
-          chmod 400 terra-key-ec2.pem
+          chmod 600 terra-key-ec2
+          echo "Using repo key terra-key-ec2"
+          head -n 3 terra-key-ec2
 
-      # 🧩 Add EC2 IP to Ansible inventory
+      # 📄 Create Inventory With Correct Key Name
       - name: Create Ansible inventory
         run: |
+          mkdir -p ansible
           echo "[web]" > ansible/inventory.ini
-          echo "${{ env.EC2_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=terra-key-ec2.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory.ini
+          echo "${{ env.EC2_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=$PWD/terra-key-ec2 ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory.ini
 
-      # 🧰 Install Ansible
       - name: Install Ansible
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ansible
 
-      # 🧠 Configure Ansible SSH settings (disable host key checking)
       - name: Disable Strict Host Key Checking
         run: |
           mkdir -p ~/.ssh
@@ -72,8 +69,7 @@ jobs:
           echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
 
-      # 🚀 Run Ansible playbook
       - name: Run Ansible Playbook
         run: |
-          sudo ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
-            --private-key terra-key-ec2.pem -u ubuntu -vvv
+          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
+            --private-key $PWD/terra-key-ec2 -u ubuntu -vvv
