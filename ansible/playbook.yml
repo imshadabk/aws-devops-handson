@@ -1,0 +1,36 @@
+---
+- name: Deploy React App on EC2
+  hosts: web
+  become: yes
+  vars:
+    repo_url: "https://github.com/imshadabk/aws-devops-handson.git"
+
+  tasks:
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+
+    - name: Install Node.js and npm
+      apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Clone React App Repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: /home/ubuntu/react-app
+        version: main
+
+    - name: Install dependencies
+      command: npm install
+      args:
+        chdir: /home/ubuntu/react-app
+
+    - name: Start the React App
+      command: npm start -- --host 0.0.0.0
+      args:
+        chdir: /home/ubuntu/react-app
+      async: 1000
+      poll: 0
