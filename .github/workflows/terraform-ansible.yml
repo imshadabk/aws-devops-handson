@@ -60,6 +60,11 @@ jobs:
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
 
+      - name: Disable Strict Host Key Checking
+        run: |
+          echo "[defaults]" > ansible/ansible.cfg
+          echo "host_key_checking = False" >> ansible/ansible.cfg
+
       # Step 9: Run Ansible playbook
       - name: Run Ansible Playbook
         run: |
