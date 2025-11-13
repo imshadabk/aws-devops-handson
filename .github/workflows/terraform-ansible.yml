@@ -59,10 +59,21 @@ jobs:
 
       # 🧰 Install Ansible
       - name: Install Ansible
-        run: sudo apt-get update && sudo apt-get install -y ansible
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ansible
+
+      # 🧠 Configure Ansible SSH settings (disable host key checking)
+      - name: Disable Strict Host Key Checking
+        run: |
+          mkdir -p ~/.ssh
+          echo "Host *" > ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
       # 🚀 Run Ansible playbook
       - name: Run Ansible Playbook
         run: |
           ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
-            --private-key terra-key-ec2 -u ubuntu
+            --private-key terra-key-ec2 -u ubuntu -vvv
