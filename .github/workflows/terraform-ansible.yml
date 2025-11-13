@@ -17,14 +17,14 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.13.5  
+          terraform_version: 1.13.5
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1 
+          aws-region: ap-south-1
 
       - name: Terraform Init
         run: terraform init
@@ -43,19 +43,26 @@ jobs:
         run: |
           IP=$(terraform output -raw ec2_public_ip 2>/dev/null || echo "none")
           echo "EC2_IP=$IP" >> $GITHUB_ENV
+        shell: bash
 
-      # Step 7: Add EC2 IP to Ansible inventory
+      # 🗝️ Use your actual private key name (terra-key-ec2)
+      - name: Setup SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > terra-key-ec2
+          chmod 400 terra-key-ec2
+
+      # 🧩 Add EC2 IP to Ansible inventory
       - name: Create Ansible inventory
         run: |
           echo "[web]" > ansible/inventory.ini
           echo "${{ env.EC2_IP }}" >> ansible/inventory.ini
 
-      # Step 8: Install Ansible
+      # 🧰 Install Ansible
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
 
-      # Step 9: Run Ansible playbook
+      # 🚀 Run Ansible playbook
       - name: Run Ansible Playbook
         run: |
           ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
-            --private-key private_key.pem -u ubuntu
+            --private-key terra-key-ec2 -u ubuntu
